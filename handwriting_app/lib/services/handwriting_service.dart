@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
@@ -12,11 +14,13 @@ import '../utils/handwriting_analyzer.dart';
 class HandwritingService extends ChangeNotifier {
   String? _sampleImagePath;
   String? _generatedImagePath;
+  Uint8List? _generatedImageBytes; // Used on web
   HandwritingStyle? _extractedStyle;
   bool _isProcessing = false;
   
   String? get sampleImagePath => _sampleImagePath;
   String? get generatedImagePath => _generatedImagePath;
+  Uint8List? get generatedImageBytes => _generatedImageBytes;
   HandwritingStyle? get extractedStyle => _extractedStyle;
   bool get isProcessing => _isProcessing;
 
@@ -88,15 +92,22 @@ class HandwritingService extends ChangeNotifier {
         canvasHeight.toInt(),
       );
       
-      // Save the image
+      // Get PNG bytes
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final buffer = byteData!.buffer.asUint8List();
-      
-      final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/handwritten_${DateTime.now().millisecondsSinceEpoch}.png');
-      await file.writeAsBytes(buffer);
-      
-      _generatedImagePath = file.path;
+
+      if (kIsWeb) {
+        // On web, keep bytes in memory
+        _generatedImageBytes = buffer;
+        _generatedImagePath = null;
+      } else {
+        // On mobile/desktop, save to a temporary file
+        final tempDir = await getTemporaryDirectory();
+        final file = File('${tempDir.path}/handwritten_${DateTime.now().millisecondsSinceEpoch}.png');
+        await file.writeAsBytes(buffer);
+        _generatedImagePath = file.path;
+        _generatedImageBytes = null;
+      }
     } catch (e) {
       print('Error generating handwriting: $e');
     } finally {
@@ -364,12 +375,14 @@ class HandwritingService extends ChangeNotifier {
 
   void clearGenerated() {
     _generatedImagePath = null;
+    _generatedImageBytes = null;
     notifyListeners();
   }
 
   void reset() {
     _sampleImagePath = null;
     _generatedImagePath = null;
+    _generatedImageBytes = null;
     _extractedStyle = null;
     _isProcessing = false;
     notifyListeners();

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -98,11 +99,12 @@ class _HandwritingOutputScreenState extends State<HandwritingOutputScreen> {
             onPressed: _shareImage,
             tooltip: 'Share',
           ),
-          IconButton(
-            icon: const Icon(Icons.save_alt),
-            onPressed: _isSaving ? null : _saveToGallery,
-            tooltip: 'Save to Gallery',
-          ),
+          if (!kIsWeb)
+            IconButton(
+              icon: const Icon(Icons.save_alt),
+              onPressed: _isSaving ? null : _saveToGallery,
+              tooltip: 'Save to Gallery',
+            ),
         ],
       ),
       body: Stack(
@@ -125,7 +127,7 @@ class _HandwritingOutputScreenState extends State<HandwritingOutputScreen> {
                 );
               }
 
-              if (service.generatedImagePath == null) {
+              if (service.generatedImagePath == null && service.generatedImageBytes == null) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -173,10 +175,17 @@ class _HandwritingOutputScreenState extends State<HandwritingOutputScreen> {
                           boundaryMargin: const EdgeInsets.all(20),
                           minScale: 0.5,
                           maxScale: 4,
-                          child: Image.file(
-                            File(service.generatedImagePath!),
-                            fit: BoxFit.contain,
-                          ),
+                          child: kIsWeb
+                              ? (service.generatedImageBytes != null
+                                  ? Image.memory(
+                                      service.generatedImageBytes!,
+                                      fit: BoxFit.contain,
+                                    )
+                                  : const Center(child: Text('No image generated')))
+                              : Image.file(
+                                  File(service.generatedImagePath!),
+                                  fit: BoxFit.contain,
+                                ),
                         ),
                       ),
                     ),

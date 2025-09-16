@@ -15,8 +15,8 @@ dependencies:
   image_picker: ^1.0.7
   path_provider: ^2.1.2
   permission_handler: ^11.2.0
-  image: ^4.1.7
-  flutter_svg: ^2.0.10+1
+  image: ^3.3.0
+  flutter_svg: ^2.0.9
   path_drawing: ^1.0.1
   provider: ^6.1.1
   share_plus: ^7.2.2
@@ -35,9 +35,3 @@ flutter:
     - assets/images/
     - assets/fonts/
   
-  fonts:
-    - family: Poppins
-      fonts:
-        - asset: assets/fonts/Poppins-Regular.ttf
-        - asset: assets/fonts/Poppins-Bold.ttf
-          weight: 700

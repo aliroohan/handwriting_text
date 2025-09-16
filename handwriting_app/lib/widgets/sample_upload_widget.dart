@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class SampleUploadWidget extends StatelessWidget {
@@ -25,7 +26,9 @@ class SampleUploadWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey[300]!),
               image: DecorationImage(
-                image: FileImage(File(imagePath!)),
+                image: kIsWeb
+                    ? NetworkImage(imagePath!)
+                    : FileImage(File(imagePath!)) as ImageProvider,
                 fit: BoxFit.cover,
               ),
             ),
