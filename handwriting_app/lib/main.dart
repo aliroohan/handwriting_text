@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'screens/home_screen.dart';
-import 'services/handwriting_service.dart';
+import 'services/ml_handwriting_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => HandwritingService()),
+        ChangeNotifierProvider(create: (_) => MLHandwritingService()..initializeModels()),
       ],
       child: MaterialApp(
         title: 'Handwriting Synthesizer',
